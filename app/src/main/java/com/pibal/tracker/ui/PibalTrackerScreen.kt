@@ -20,20 +20,23 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pibal.tracker.logic.WindResult
 
 @Composable
-fun PibalTrackerScreen(viewModel: MainViewModel = viewModel()) {
+fun PibalTrackerScreen(
+    modifier: Modifier = Modifier,
+    viewModel: MainViewModel = viewModel()
+) {
     val orientation by viewModel.orientation.collectAsState()
     val timerSeconds by viewModel.timerSeconds.collectAsState()
     val isTracking by viewModel.isTracking.collectAsState()
     val windResults by viewModel.windResults.collectAsState()
     
-    var isNightMode by remember { mutableStateFlowOf(false) }
+    var isNightMode by remember { mutableStateOf(false) }
     
     val backgroundColor = if (isNightMode) Color.Black else MaterialTheme.colorScheme.background
     val textColor = if (isNightMode) Color.Red else MaterialTheme.colorScheme.onBackground
     val secondaryColor = if (isNightMode) Color(0xFF880000) else MaterialTheme.colorScheme.secondary
 
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         color = backgroundColor
     ) {
         Column(
