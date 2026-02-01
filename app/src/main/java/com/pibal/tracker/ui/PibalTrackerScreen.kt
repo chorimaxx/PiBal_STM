@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import java.util.Locale
 import com.pibal.tracker.logic.WindResult
 
 @Composable
@@ -74,7 +75,7 @@ fun PibalTrackerScreen(
             // Large Angle Display
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "${String.format("%.1f", orientation.azimuth)}°",
+                    text = "${String.format(Locale.US, "%.1f", orientation.azimuth)}°",
                     fontSize = 80.sp,
                     color = textColor,
                     fontFamily = FontFamily.Monospace,
@@ -89,7 +90,7 @@ fun PibalTrackerScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    text = "${String.format("%.1f", orientation.elevation)}°",
+                    text = "${String.format(Locale.US, "%.1f", orientation.elevation)}°",
                     fontSize = 60.sp,
                     color = textColor,
                     fontFamily = FontFamily.Monospace,
@@ -132,7 +133,7 @@ fun PibalTrackerScreen(
             }
             
             Text(
-                text = "Total: ${timerSeconds / 60}:${String.format("%02d", timerSeconds % 60)}",
+                text = "Total: ${timerSeconds / 60}:${String.format(Locale.US, "%02d", timerSeconds % 60)}",
                 color = textColor,
                 modifier = Modifier.padding(top = 8.dp)
             )
@@ -170,7 +171,7 @@ fun PibalTrackerScreen(
                 fontSize = 14.sp,
                 modifier = Modifier.align(Alignment.Start)
             )
-            Divider(color = secondaryColor, modifier = Modifier.padding(vertical = 4.dp))
+            HorizontalDivider(color = secondaryColor, modifier = Modifier.padding(vertical = 4.dp))
             
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(windResults.reversed()) { result ->
@@ -195,7 +196,7 @@ fun WindResultItem(result: WindResult, textColor: Color, secondaryColor: Color) 
                 Text("Alt: ${result.heightMeters.toInt()}m", color = textColor, fontWeight = FontWeight.Bold)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Spd: ${String.format("%.1f", result.windSpeed)}m/s", color = textColor)
+                Text("Spd: ${String.format(Locale.US, "%.1f", result.windSpeed)}m/s", color = textColor)
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text("Dir: ${result.windDirection.toInt()}°", color = textColor)

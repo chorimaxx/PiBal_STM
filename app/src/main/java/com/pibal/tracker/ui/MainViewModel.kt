@@ -120,7 +120,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), T
             val result = windCalculator.calculateWind(p1, p2)
             _windResults.value = _windResults.value + result
             
-            speak("Height ${result.heightMeters.toInt()} meters. Speed ${String.format("%.1f", result.windSpeed)} meters per second. Direction ${result.windDirection.toInt()} degrees.")
+            speak("Height ${result.heightMeters.toInt()} meters. Speed ${String.format(Locale.US, "%.1f", result.windSpeed)} meters per second. Direction ${result.windDirection.toInt()} degrees.")
         } else {
             speak("Initial point recorded.")
         }
