@@ -19,16 +19,26 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.util.Locale
 import com.pibal.tracker.logic.WindResult
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun PibalTrackerScreen(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val orientation by viewModel.orientation.collectAsState()
     val timerSeconds by viewModel.timerSeconds.collectAsState()
     val isTracking by viewModel.isTracking.collectAsState()
     val windResults by viewModel.windResults.collectAsState()
+    
+    LaunchedEffect(Unit) {
+        viewModel.toastMessage.collectLatest { message ->
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
+    }
     
     var isNightMode by remember { mutableStateOf(false) }
     

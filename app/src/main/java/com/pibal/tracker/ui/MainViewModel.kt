@@ -11,14 +11,18 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.pibal.tracker.location.LocationProvider
 import com.pibal.tracker.logic.BalloonPosition
+import com.pibal.tracker.logic.PdfReportGenerator
 import com.pibal.tracker.logic.WindCalculator
 import com.pibal.tracker.logic.WindResult
 import com.pibal.tracker.sensor.OrientationData
 import com.pibal.tracker.sensor.SensorRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -27,11 +31,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application), T
     private val sensorRepository = SensorRepository(application)
     private val locationProvider = LocationProvider(application)
     private val windCalculator = WindCalculator()
+    private val pdfReportGenerator = PdfReportGenerator(application)
     private val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        val vibratorManager = application.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        val vibratorManager = application.getSystemService(VibratorManager::class.java)!!
         vibratorManager.defaultVibrator
     } else {
-        application.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        application.getSystemService(Vibrator::class.java)!!
     }
 
     private var tts: TextToSpeech? = TextToSpeech(application, this)
@@ -50,6 +55,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application), T
 
     private val _isTracking = MutableStateFlow(false)
     val isTracking: StateFlow<Boolean> = _isTracking
+
+    private val _toastMessage = MutableSharedFlow<String>()
+    val toastMessage: SharedFlow<String> = _toastMessage.asSharedFlow()
 
     private var timerJob: Job? = null
 
@@ -90,10 +98,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application), T
     }
 
     fun stopTracking() {
+        if (!_isTracking.value) return
         _isTracking.value = false
         timerJob?.cancel()
         sensorRepository.stop()
         tts?.stop()
+
+        // Generate PDF report
+        val results = _windResults.value
+        if (results.isNotEmpty()) {
+            val sortedResults = results.sortedBy { it.heightMeters }
+            val filePath = pdfReportGenerator.generateReport(sortedResults)
+            if (filePath != null) {
+                viewModelScope.launch {
+                    _toastMessage.emit("PDF Report generated: ${filePath.substringAfterLast("/")}")
+                }
+            }
+        }
     }
 
     private fun recordPoint() {
