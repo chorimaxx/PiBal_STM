@@ -19,9 +19,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.util.Locale
 import com.pibal.tracker.logic.WindResult
-import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.collectLatest
+import androidx.core.content.FileProvider
+import android.content.Intent
+import android.widget.Toast
+import java.io.File
 
 @Composable
 fun PibalTrackerScreen(
@@ -37,6 +40,24 @@ fun PibalTrackerScreen(
     LaunchedEffect(Unit) {
         viewModel.toastMessage.collectLatest { message ->
             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.sharePdfEvent.collectLatest { filePath ->
+            val file = File(filePath)
+            val uri = FileProvider.getUriForFile(
+                context,
+                "com.pibal.tracker.fileprovider",
+                file
+            )
+            
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/pdf"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            context.startActivity(Intent.createChooser(intent, "Save/Share Report"))
         }
     }
     

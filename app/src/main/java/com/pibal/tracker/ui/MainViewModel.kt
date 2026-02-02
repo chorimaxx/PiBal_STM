@@ -59,6 +59,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application), T
     private val _toastMessage = MutableSharedFlow<String>()
     val toastMessage: SharedFlow<String> = _toastMessage.asSharedFlow()
 
+    private val _sharePdfEvent = MutableSharedFlow<String>()
+    val sharePdfEvent: SharedFlow<String> = _sharePdfEvent.asSharedFlow()
+
     private var timerJob: Job? = null
 
     init {
@@ -112,6 +115,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), T
             if (filePath != null) {
                 viewModelScope.launch {
                     _toastMessage.emit("PDF Report generated: ${filePath.substringAfterLast("/")}")
+                    _sharePdfEvent.emit(filePath)
                 }
             }
         }
