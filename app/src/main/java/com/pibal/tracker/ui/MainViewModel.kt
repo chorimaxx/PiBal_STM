@@ -82,6 +82,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application), T
         locationProvider.updateLocationAndDeclination()
         sensorRepository.start()
         
+        // Record initial point immediately
+        recordPoint()
+        
         timerJob = viewModelScope.launch {
             while (_isTracking.value) {
                 // T-5s warning
